@@ -1,0 +1,47 @@
+﻿@inject PeopleDataService PeopleDS
+
+<div style="text-align: center;">
+    <div style="margin: 1em;">
+        <button @onclick="OnGoToFirstClicked">Go to the first</button>
+        <button @onclick="OnGoToLastClicked">Go to the last</button>
+    </div>
+    @if (people == null)
+    {
+        <p>Loading...</p>
+    }
+    else
+    {
+        <IgbGrid @ref="igbGrid" Data="people" PrimaryKey="ID" AutoGenerate="false" Height="300px"
+                 DisplayDensity="DisplayDensity.Compact">
+            <IgbColumn Field="@nameof(Person.ID)" Header="ID" Hidden=true />
+            <IgbColumn Field="@nameof(Person.FamilyName)" Header="FamilyName" />
+            <IgbColumn Field="@nameof(Person.GivenName)" Header="GivenName" />
+            <IgbColumn Field="@nameof(Person.Prefecture)" Header="Prefecture" />
+            <IgbColumn Field="@nameof(Person.City)" Header="City" />
+        </IgbGrid>
+
+    }
+</div>
+
+@code {
+    private IEnumerable<Person>? people = null;
+    private IgbGrid? igbGrid = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.people = await PeopleDS.GetPeopleAsync();
+    }
+
+    private void OnGoToFirstClicked()
+    {
+        this.igbGrid?.NavigateTo(0, 0, null);
+    }
+
+    private void OnGoToLastClicked()
+    {
+        if(this.people != null)
+        {
+            this.igbGrid?.NavigateTo(this.people.Count() - 1, this.igbGrid.ActualColumns.Where(column => column.Hidden == false).Count() - 1, null);
+        }
+    }
+}
