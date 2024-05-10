@@ -1,7 +1,7 @@
 ﻿@inject PeopleDataService PeopleDS
 
-<div style="text-align: center;">
-    <div style="margin: 1em;">
+<div style="max-width:800px; margin:auto; padding:1em; display:flex; flex-direction:column; gap:1em;">
+    <div style="text-align:center;">
         <button @onclick="OnGoToFirstClicked">Go to the first</button>
         <button @onclick="OnGoToLastClicked">Go to the last</button>
     </div>
@@ -19,12 +19,12 @@
             <IgbColumn Field="@nameof(Person.Prefecture)" Header="Prefecture" />
             <IgbColumn Field="@nameof(Person.City)" Header="City" />
         </IgbGrid>
-
     }
 </div>
 
 @code {
-    private IEnumerable<Person>? people = null;
+    private IEnumerable<Person> people = [];
+
     private IgbGrid? igbGrid = null;
 
     protected override async Task OnInitializedAsync()
@@ -32,16 +32,22 @@
         this.people = await PeopleDS.GetPeopleAsync();
     }
 
-    private void OnGoToFirstClicked()
+    private async Task OnGoToFirstClicked()
     {
-        this.igbGrid?.NavigateTo(0, 0, null);
+        if (this.igbGrid != null)
+        {
+            await this.igbGrid.NavigateToAsync(0, 0, null);
+        }
     }
 
-    private void OnGoToLastClicked()
+    private async Task OnGoToLastClicked()
     {
-        if(this.people != null)
+        if (this.igbGrid != null)
         {
-            this.igbGrid?.NavigateTo(this.people.Count() - 1, this.igbGrid.ActualColumns.Where(column => column.Hidden == false).Count() - 1, null);
+            await this.igbGrid.NavigateToAsync(
+                this.people.Count() - 1,
+                this.igbGrid.ActualColumns.Count(col => col.Hidden == false) - 1,
+                null);
         }
     }
 }
